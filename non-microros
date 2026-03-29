@@ -1,0 +1,70 @@
+#include <Arduino.h>
+#include <AccelStepper.h>
+
+// Motor 1 pins
+#define PUL_PIN1 18
+#define DIR_PIN1 17
+#define ENA_PIN1 16
+
+// Motor 2 pins
+#define PUL_PIN2 12
+#define DIR_PIN2 11
+#define ENA_PIN2 10
+
+const int STEPS_PER_REV = 400;
+int speed = 10000;  // Set speed before flashing
+
+AccelStepper motor1(AccelStepper::DRIVER, PUL_PIN1, DIR_PIN1);
+AccelStepper motor2(AccelStepper::DRIVER, PUL_PIN2, DIR_PIN2);
+
+char commandBuffer[8];
+int bufferIndex = 0;
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(ENA_PIN1, OUTPUT);
+  pinMode(ENA_PIN2, OUTPUT);
+  digitalWrite(ENA_PIN1, LOW);
+  digitalWrite(ENA_PIN2, LOW);
+
+  motor1.setMaxSpeed(speed);
+  motor2.setMaxSpeed(speed);
+  motor1.setAcceleration(5000);
+  motor2.setAcceleration(5000);
+}
+
+void processCommand(char *cmd) {
+  if (strcmp(cmd, "1") == 0) {
+    motor1.moveTo(8000);
+    motor2.moveTo(-8000);
+    Serial.println("Preset 1");
+  } else if (strcmp(cmd, "2") == 0) {
+    motor1.moveTo(0);
+    motor2.moveTo(0);
+    Serial.println("Preset 2");
+  } else {
+    Serial.println("Unknown command");
+  }
+}
+
+void readSerialInput() {
+  while (Serial.available()) {
+    char c = Serial.read();
+    if (c == '\n' || c == '\r') {
+      if (bufferIndex > 0) {
+        commandBuffer[bufferIndex] = '\0';
+        processCommand(commandBuffer);
+        bufferIndex = 0;
+      }
+    } else if (bufferIndex < sizeof(commandBuffer) - 1) {
+      commandBuffer[bufferIndex++] = c;
+    }
+  }
+}
+
+void loop() {
+  readSerialInput();
+  motor1.run();
+  motor2.run();
+}

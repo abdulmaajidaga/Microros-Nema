@@ -1,0 +1,29 @@
+
+# PlatformIO: ignore build and environment artifacts (rebuildable)
+.pio/
+.pioenvs/
+.piolibdeps/
+.platformio/
+
+# Build artifacts and binary files
+*.bin
+*.elf
+*.hex
+*.map
+*.crc
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Editor/workspace files (keep settings.json if you want to check it in)
+.vscode/
+!.vscode/settings.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+.env
+*.log
